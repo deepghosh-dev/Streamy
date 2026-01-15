@@ -1,8 +1,15 @@
+/**
+ * Legal Disclaimer:
+ * This project is for educational and personal learning purposes only.
+ * All third-party content belongs to its respective owners.
+ * This project does not host, store, or claim ownership of any external content.
+ * The developer is not responsible for misuse of this project.
+ * Third-party services are used under their own terms, conditions, and policies.
+ */
+
 import { getSongsById } from "@/lib/fetch";
 import Player from "../_components/Player";
 import Recomandation from "../_components/Recomandation";
-import AdvanceSearch from "../_components/AdvanceSearch";
-import Search from "@/components/page/search";
 
 export const generateMetadata = async ({ params }) => {
   const title = await getSongsById(params.id);
