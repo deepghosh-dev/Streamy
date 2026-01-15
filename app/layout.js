@@ -1,5 +1,6 @@
 import MusicProvider from "@/components/providers/music-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { APP_NAME, requireBranding } from "@/lib/branding";
 import { Bricolage_Grotesque } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
@@ -11,13 +12,14 @@ const bricolage_grotesque = Bricolage_Grotesque({
 });
 
 export const metadata = {
-  title: "Streamy",
+  title: APP_NAME,
   description: "Music streaming app.",
   icons: "/favi-icon.jpg",
   manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }) {
+  requireBranding();
   return (
     <html lang="en">
       <body className={bricolage_grotesque.className}>
