@@ -4,6 +4,6 @@ Free Music Player
 
 - This project is for educational and personal learning purposes only.
 - All third-party content belongs to its respective owners.
-- This project does not host, store, or claim ownership of any external content.
+- This project does not host, store, or claim ownership of any external content. It only accesses content provided by third-party services.
 - The developer is not responsible for misuse of this project.
-- Third-party services are used under their own terms, conditions, and policies.
+- Third-party services are used under their own terms, conditions, and policies. Users are responsible for complying with those terms and any applicable laws.
