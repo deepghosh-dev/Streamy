@@ -450,9 +450,9 @@
       "src": "ios/1024.png",
       "sizes": "1024x1024"
     }
-      "name": "Streamy",
-      "short_name": "Streamy",
+  ],
   "background_color": "#000000",
+  "theme_color": "#000000",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait"
