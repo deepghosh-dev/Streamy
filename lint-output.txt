@@ -1,0 +1,98 @@
+﻿bunx : 
+At line:1 char:1
++ bunx next lint 2>&1 | Out-File -Encoding utf8 lint-output.txt; (Get-I ...
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+./app/(player)/_components/AdvanceSearch.jsx
+64:8  Warning: React Hook useEffect has a missing dependency: 'getSongs'. Either include it or remove the 
+dependency array.  react-hooks/exhaustive-deps
+121:53  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(player)/_components/Player.jsx
+154:18  Warning: The ref value 'audioRef.current' will likely have changed by the time this effect cleanup 
+function runs. If this ref points to a node rendered by React, copy 'audioRef.current' to a variable inside the 
+effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+157:6  Warning: React Hook useEffect has missing dependencies: 'current', 'getSong', 'id', and 'setCurrent'. 
+Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+184:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+184:17  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for 
+decorative images.  jsx-a11y/alt-text
+188:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+188:17  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for 
+decorative images.  jsx-a11y/alt-text
+
+./app/(player)/_components/Recomandation.jsx
+41:6  Warning: React Hook useEffect has a missing dependency: 'getData'. Either include it or remove the 
+dependency array.  react-hooks/exhaustive-deps
+
+./app/(root)/album/_components/Album.jsx
+23:8  Warning: React Hook useEffect has a missing dependency: 'getData'. Either include it or remove the 
+dependency array.  react-hooks/exhaustive-deps
+29:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/(root)/search/_components/Search.jsx
+38:8  Warning: React Hook useEffect has missing dependencies: 'getAlbum' and 'getSongs'. Either include them or 
+remove the dependency array.  react-hooks/exhaustive-deps
+45:85  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+45:93  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+66:84  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+66:92  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+87:85  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+87:93  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./app/(root)/_components/home-infinite-feed.jsx
+75:6  Warning: React Hook useEffect has a missing dependency: 'fetchPage'. Either include it or remove the 
+dependency array.  react-hooks/exhaustive-deps
+
+./components/cards/album.jsx
+11:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/cards/artist.jsx
+7:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/cards/next.jsx
+10:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+10:9  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative 
+images.  jsx-a11y/alt-text
+
+./components/cards/player.jsx
+93:20  Warning: The ref value 'audioRef.current' will likely have changed by the time this effect cleanup 
+function runs. If this ref points to a node rendered by React, copy 'audioRef.current' to a variable inside the 
+effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+97:6  Warning: React Hook useEffect has missing dependencies: 'current', 'getSong', and 'setCurrent'. Either 
+include them or remove the dependency array.  react-hooks/exhaustive-deps
+127:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+132:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/cards/song.jsx
+20:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/page/search.jsx
+235:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from 
+`next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: 
+https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: 
+https://nextjs.org/docs/basic-features/eslint#disabling-rules

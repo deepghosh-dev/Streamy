@@ -6,6 +6,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSongsByQuery, searchAlbumByQuery } from "@/lib/fetch";
 import { useEffect, useState } from "react";
+import HomeInfiniteFeed from "./_components/home-infinite-feed";
 
 export default function Page() {
   const [latest, setLatest] = useState([]);
@@ -94,6 +95,8 @@ export default function Page() {
           <ScrollBar orientation="horizontal" className="hidden sm:flex" />
         </ScrollArea>
       </div>
+
+      <HomeInfiniteFeed query="latest" pageSize={24} />
     </main>
   )
 }

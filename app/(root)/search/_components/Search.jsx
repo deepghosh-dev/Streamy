@@ -42,7 +42,7 @@ export default function Search({ params }) {
             <div className="grid gap-4">
                 <div className="mt-2">
                     <h1 className="text-base">Search Results</h1>
-                    <p className="text-xs text-muted-foreground">search results for "{query}"</p>
+                    <p className="text-xs text-muted-foreground">search results for &quot;{query}&quot;</p>
                 </div>
                 <ScrollArea>
                     <div className="flex gap-4">
@@ -63,7 +63,7 @@ export default function Search({ params }) {
 
                 <div className="mt-8">
                     <h1 className="text-base">Related Albums</h1>
-                    <p className="text-xs text-muted-foreground">Albums related to "{query}"</p>
+                    <p className="text-xs text-muted-foreground">Albums related to &quot;{query}&quot;</p>
                 </div>
                 <ScrollArea className="whitespace-nowrap pb-4">
                     <div className="flex gap-4">
@@ -84,7 +84,7 @@ export default function Search({ params }) {
 
                 <div className="mt-4">
                     <h1 className="text-base font-medium">Related Artists</h1>
-                    <p className="text-xs text-muted-foreground">artists related to "{query}"</p>
+                    <p className="text-xs text-muted-foreground">artists related to &quot;{query}&quot;</p>
                 </div>
                 <ScrollArea>
                     {artists.length > 0 ? (
