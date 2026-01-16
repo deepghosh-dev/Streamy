@@ -26,14 +26,14 @@ export default function SpotifyShell({ children }) {
             <div className="rounded-none bg-black/25 border-y border-white/5 backdrop-blur-xl overflow-hidden">
               {/* Top bar */}
               <div className="sticky top-0 z-40 bg-black/25 backdrop-blur-xl border-b border-white/5">
-                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 sm:px-4 py-2">
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-6 sm:px-10 md:px-10 py-2">
                   <div className="flex items-center">
                     <Link
                       href="/"
                       aria-label={APP_NAME}
                       title={APP_NAME}
                       className={cn(
-                        "text-sm sm:text-base font-semibold tracking-tight",
+                        "h-10 inline-flex items-center text-xl sm:text-2xl font-bold tracking-tight leading-none",
                         "text-foreground/95 hover:text-foreground transition"
                       )}
                     >
@@ -79,7 +79,7 @@ export default function SpotifyShell({ children }) {
               </div>
 
               {/* Page content */}
-              <div className="px-3 sm:px-4 md:px-6 py-4 pb-36">{children}</div>
+              <div className="px-6 sm:px-10 md:px-10 py-4 pb-36">{children}</div>
             </div>
           </div>
         </div>
