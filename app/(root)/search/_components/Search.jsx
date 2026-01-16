@@ -4,11 +4,18 @@ import ArtistCard from "@/components/cards/artist";
 import SongCard from "@/components/cards/song";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAlbumById, getSongsByQuery, searchAlbumByQuery } from "@/lib/fetch";
+import { getSongsByQuery, searchAlbumByQuery } from "@/lib/fetch";
 import { useEffect, useState } from "react";
 
 export default function Search({ params }) {
-    const query = params.id;
+    const rawQuery = params.id;
+    const query = (() => {
+        try {
+            return decodeURIComponent(rawQuery);
+        } catch {
+            return rawQuery;
+        }
+    })();
 
     const [artists, setArtists] = useState([]);
     const [songs, setSongs] = useState([]);
@@ -35,7 +42,7 @@ export default function Search({ params }) {
             <div className="grid gap-4">
                 <div className="mt-2">
                     <h1 className="text-base">Search Results</h1>
-                    <p className="text-xs text-muted-foreground">search results for "{decodeURI(query)}"</p>
+                    <p className="text-xs text-muted-foreground">search results for "{query}"</p>
                 </div>
                 <ScrollArea>
                     <div className="flex gap-4">
@@ -56,7 +63,7 @@ export default function Search({ params }) {
 
                 <div className="mt-8">
                     <h1 className="text-base">Related Albums</h1>
-                    <p className="text-xs text-muted-foreground">Albums related to "{decodeURI(query)}"</p>
+                    <p className="text-xs text-muted-foreground">Albums related to "{query}"</p>
                 </div>
                 <ScrollArea className="whitespace-nowrap pb-4">
                     <div className="flex gap-4">
@@ -77,7 +84,7 @@ export default function Search({ params }) {
 
                 <div className="mt-4">
                     <h1 className="text-base font-medium">Related Artists</h1>
-                    <p className="text-xs text-muted-foreground">artists related to "{decodeURI(query)}"</p>
+                    <p className="text-xs text-muted-foreground">artists related to "{query}"</p>
                 </div>
                 <ScrollArea>
                     {artists.length > 0 ? (
