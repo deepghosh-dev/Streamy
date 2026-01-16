@@ -1,26 +1,26 @@
 "use client";
-import Link from "next/link";
-import { Skeleton } from "../ui/skeleton";
-import { useContext, useEffect } from "react";
 import { MusicContext } from "@/hooks/use-context";
+import { cn } from "@/lib/utils";
+import { useContext } from "react";
 import { IoPlay } from "react-icons/io5";
+import { Skeleton } from "../ui/skeleton";
 
-export default function SongCard({ title, image, artist, id, desc }) {
+export default function SongCard({ title, image, artist, id, desc, className, imageClassName }) {
     const ids = useContext(MusicContext);
     const setLastPlayed = () => {
         localStorage.clear();
         localStorage.setItem("last-played", id);
     };
     return (
-        <div className="h-fit w-[200px]">
+        <div className={cn("h-fit w-[200px]", className)}>
             <div className="overflow-hidden rounded-md">
                 {image ? (
                     <div className="relative" onClick={() => { ids.setMusic(id); setLastPlayed(); }}>
-                        <img src={image} alt={title} className="h-[182px] blurz w-full bg-secondary/60 rounded-md transition hover:scale-105 cursor-context-menu" />
+                        <img src={image} alt={title} className={cn("h-[182px] blurz w-full bg-secondary/60 rounded-md transition hover:scale-105 cursor-context-menu", imageClassName)} />
                         <div className="cursor-pointer absolute z-10 bottom-2 left-2 bg-background/60 backdrop-blur-md rounded-full h-8 w-8 flex items-center justify-center"><IoPlay className="w-4 h-4 -mr-0.5 dark:fill-white"/></div>
                     </div>
                 ) : (
-                    <Skeleton className="w-full h-[182px]" />
+                    <Skeleton className={cn("w-full h-[182px]", imageClassName)} />
                 )}
             </div>
             <div className="cursor-pointer">
