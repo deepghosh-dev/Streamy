@@ -38,7 +38,7 @@ export default function Search({ params }) {
     }, [params.id]);
 
     return (
-        <div className="py-12 -mt-9 px-6 md:px-20 lg:px-32">
+        <div className="py-2">
             <div className="grid gap-4">
                 <div className="mt-2">
                     <h1 className="text-base">Search Results</h1>

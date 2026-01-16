@@ -1,5 +1,6 @@
 "use client";
 import { getSongsByQueryWithOptions } from "@/lib/fetch";
+import { cn } from "@/lib/utils";
 import { SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -28,7 +29,11 @@ const writeHistory = (items) => {
     }
 };
 
-export default function Search() {
+export default function Search({
+    placeholder = "Try Maharani..",
+    inputClassName,
+    buttonClassName,
+}) {
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [history, setHistory] = useState([]);
@@ -134,7 +139,17 @@ export default function Search() {
     return (
         <>
             <form onSubmit={handleSubmit} className="flex items-center relative z-20 w-full">
-                <Button variant="ghost" type="submit" size="icon" className="absolute right-0 rounded-xl rounded-l-none bg-none"><SearchIcon className="w-4 h-4" /></Button>
+                <Button
+                    variant="ghost"
+                    type="submit"
+                    size="icon"
+                    className={cn(
+                        "absolute right-0 rounded-xl rounded-l-none bg-none",
+                        buttonClassName
+                    )}
+                >
+                    <SearchIcon className="w-4 h-4" />
+                </Button>
                 <Input
                     ref={inpRef}
                     value={query}
@@ -153,9 +168,9 @@ export default function Search() {
                     }}
                     autoComplete="off"
                     type="search"
-                    className="rounded-lg bg-secondary/50"
+                    className={cn("rounded-lg bg-secondary/50", inputClassName)}
                     name="query"
-                    placeholder="Try Maharani.."
+                    placeholder={placeholder}
                 />
 
                 {open && (loading || suggestions.length > 0 || normalizedQuery || history.length > 0) && (
