@@ -172,6 +172,17 @@ export default function Player() {
     setIsLooping(!isLooping);
   };
 
+  // Keep volume changes from re-initializing the current track
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    try {
+      audio.volume = volume;
+    } catch {
+      // ignore
+    }
+  }, [volume]);
+
   useEffect(() => {
     if (!music) return;
 
@@ -216,9 +227,7 @@ export default function Player() {
       // ignore
     }
 
-    if (audio) {
-      audio.volume = volume;
-    }
+    // volume is handled in a separate effect to avoid re-initializing the track
 
     setPlaying(
       (localStorage.getItem("p") == "true" && true) ||
@@ -254,7 +263,7 @@ export default function Player() {
       audio?.removeEventListener("timeupdate", handleTimeUpdate);
       audio?.removeEventListener("ended", handleEnded);
     };
-  }, [music, playTrackById, setCurrent, volume]);
+  }, [music, playTrackById, setCurrent]);
   return (
     <main>
       <audio
