@@ -6,6 +6,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MusicContext } from "@/hooks/use-context";
 import { getSongsByQuery, searchAlbumByQuery } from "@/lib/fetch";
+import { touchQueue } from "@/lib/queue";
 import { cn } from "@/lib/utils";
 import { Play } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -93,8 +94,8 @@ export default function Page() {
 
   const setLastPlayed = (id) => {
     try {
-      localStorage.clear();
       localStorage.setItem("last-played", id);
+      touchQueue(id);
     } catch {
       // ignore
     }

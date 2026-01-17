@@ -47,7 +47,15 @@ export default function Search({ params }) {
                 <ScrollArea>
                     <div className="flex gap-4">
                         {songs.length ? songs.map((song) => (
-                            <SongCard key={song.id} id={song.id} image={song.image[2].url} artist={song.artists.primary[0]?.name || "unknown"} title={song.name} />
+                            <SongCard
+                                key={song.id}
+                                id={song.id}
+                                image={song.image[2].url}
+                                artist={song.artists.primary[0]?.name || "unknown"}
+                                title={song.name}
+                                contextIds={songs.map((s) => s.id)}
+                                contextKey={`search:${query}`}
+                            />
                         )) : (
                             <>
                                 <SongCard />

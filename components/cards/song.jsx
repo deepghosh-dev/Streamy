@@ -1,15 +1,33 @@
 "use client";
 import { MusicContext } from "@/hooks/use-context";
+import { touchQueue, writePlayContext } from "@/lib/queue";
 import { cn } from "@/lib/utils";
 import { useContext } from "react";
 import { IoPlay } from "react-icons/io5";
 import { Skeleton } from "../ui/skeleton";
 
-export default function SongCard({ title, image, artist, id, desc, className, imageClassName }) {
+export default function SongCard({
+    title,
+    image,
+    artist,
+    id,
+    desc,
+    className,
+    imageClassName,
+    contextIds,
+    contextKey,
+}) {
     const ids = useContext(MusicContext);
     const setLastPlayed = () => {
-        localStorage.clear();
-        localStorage.setItem("last-played", id);
+        try {
+            localStorage.setItem("last-played", id);
+            touchQueue(id);
+            if (Array.isArray(contextIds) && contextIds.length) {
+                writePlayContext(contextIds, contextKey);
+            }
+        } catch {
+            // ignore
+        }
     };
     return (
         <div className={cn("h-fit w-[200px]", className)}>

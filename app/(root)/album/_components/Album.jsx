@@ -1,12 +1,11 @@
 "use client"
 
-import AlbumCard from "@/components/cards/album";
 import SongCard from "@/components/cards/song";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAlbumById } from "@/lib/fetch";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
 export default function Album({ id }) {
     const [data, setData] = useState([]);
@@ -40,7 +39,15 @@ export default function Album({ id }) {
                         <ScrollArea className="rounded-md mt-4">
                             <div className="flex gap-3">
                                 {data.songs.map((song) => (
-                                    <SongCard key={song.id} image={song.image[2].url} title={song.name} artist={song.artists.primary[0].name} id={song.id} />
+                                    <SongCard
+                                        key={song.id}
+                                        image={song.image[2].url}
+                                        title={song.name}
+                                        artist={song.artists.primary[0].name}
+                                        id={song.id}
+                                        contextIds={data.songs.map((s) => s.id)}
+                                        contextKey={`album:${id}`}
+                                    />
                                 ))}
                             </div>
                             <ScrollBar orientation="horizontal" className="hidden sm:flex" />

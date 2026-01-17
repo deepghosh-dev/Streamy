@@ -113,6 +113,8 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
             image={getImageUrl(song)}
             className="w-full"
             imageClassName="aspect-square h-auto w-full object-cover"
+            contextIds={items.map((s) => s.id)}
+            contextKey={`feed:${query}`}
           />
         ))}
 
