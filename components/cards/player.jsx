@@ -33,7 +33,6 @@ export default function Player() {
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const isSeekingRef = useRef(false);
-  const wasPlayingBeforeSeekRef = useRef(false);
   const { music, setMusic, current, setCurrent } = useMusicProvider();
 
   const formatTime = (time) => {
@@ -122,14 +121,6 @@ export default function Player() {
     setIsSeeking(true);
     const now = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
     setSeekValue(now);
-    wasPlayingBeforeSeekRef.current = !audio.paused;
-    if (wasPlayingBeforeSeekRef.current) {
-      try {
-        audio.pause();
-      } catch {
-        // ignore
-      }
-    }
   };
 
   const handleSeekChange = (values) => {
@@ -152,9 +143,6 @@ export default function Player() {
     setCurrent(seekTime);
     isSeekingRef.current = false;
     setIsSeeking(false);
-    if (audio && wasPlayingBeforeSeekRef.current) {
-      audio.play().catch(() => {});
-    }
   };
 
   const handleVolume = (e) => {
@@ -190,7 +178,20 @@ export default function Player() {
     const audio = audioRef.current;
     let cancelled = false;
 
-    const progressKey = `streamy:progress:${music}`;
+    // New track: always reset UI + global progress to 0
+    isSeekingRef.current = false;
+    setIsSeeking(false);
+    setSeekValue(0);
+    setCurrentTime(0);
+    setDuration(0);
+    setCurrent(0);
+    if (audio) {
+      try {
+        audio.currentTime = 0;
+      } catch {
+        // ignore
+      }
+    }
 
     const getSong = async () => {
       const res = await getSongsById(music);
@@ -217,24 +218,6 @@ export default function Player() {
 
     if (audio) {
       audio.volume = volume;
-
-      // Restore progress per-track (prevents new songs from jumping near the end)
-      const saved = Number.parseFloat(localStorage.getItem(progressKey) || "0");
-      const restore = () => {
-        if (!Number.isFinite(saved) || saved <= 0) return;
-        if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
-        if (saved >= audio.duration - 1.25) return;
-        try {
-          audio.currentTime = saved;
-          setCurrentTime(saved);
-        } catch (e) {
-          // ignore
-        }
-      };
-
-      // If metadata isn't ready yet, this will run once it is.
-      audio.addEventListener("loadedmetadata", restore, { once: true });
-      restore();
     }
 
     setPlaying(
@@ -250,9 +233,6 @@ export default function Player() {
         }
         setDuration(audio.duration);
         setCurrent(audio.currentTime);
-
-        // Persist progress for this track
-        localStorage.setItem(progressKey, String(audio.currentTime || 0));
       } catch (e) {
         setPlaying(false);
       }
@@ -372,7 +352,6 @@ export default function Player() {
                       setCurrent(0);
                       try {
                         localStorage.removeItem("last-played");
-                        localStorage.removeItem(`streamy:progress:${music}`);
                       } catch {
                         // ignore
                       }
@@ -559,7 +538,6 @@ export default function Player() {
                         setCurrent(0);
                         try {
                           localStorage.removeItem("last-played");
-                          localStorage.removeItem(`streamy:progress:${music}`);
                         } catch {
                           // ignore
                         }
