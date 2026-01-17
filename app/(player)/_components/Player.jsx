@@ -1,20 +1,19 @@
 "use client";
+import Next from "@/components/cards/next";
 import { Button } from "@/components/ui/button";
-import { getSongsById } from "@/lib/fetch";
-import { Download, Play, Repeat, Repeat1, Share2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
-import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import {
-  NextContext,
-  useMusicProvider,
-  useNextMusicProvider,
+    useMusicProvider,
+    useNextMusicProvider
 } from "@/hooks/use-context";
-import Next from "@/components/cards/next";
+import { getSongsById } from "@/lib/fetch";
+import { Download, Play, Repeat, Repeat1, Share2 } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { IoPause } from "react-icons/io5";
+import { toast } from "sonner";
 
 export default function Player({ id }) {
   const [data, setData] = useState([]);
@@ -22,6 +21,10 @@ export default function Player({ id }) {
   const audioRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [seekValue, setSeekValue] = useState(0);
+  const isSeekingRef = useRef(false);
+  const wasPlayingBeforeSeekRef = useRef(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isLooping, setIsLooping] = useState(false);
   const [audioURL, setAudioURL] = useState("");
@@ -111,10 +114,46 @@ export default function Player({ id }) {
     setDownloadProgress(0);
   };
 
-  const handleSeek = (e) => {
-    const seekTime = e[0];
-    audioRef.current.currentTime = seekTime;
+  const handleSeekStart = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    isSeekingRef.current = true;
+    setIsSeeking(true);
+    const now = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+    setSeekValue(now);
+    wasPlayingBeforeSeekRef.current = !audio.paused;
+    if (wasPlayingBeforeSeekRef.current) {
+      try {
+        audio.pause();
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const handleSeekChange = (values) => {
+    const seekTime = values?.[0] ?? 0;
+    setSeekValue(seekTime);
     setCurrentTime(seekTime);
+  };
+
+  const handleSeekCommit = (values) => {
+    const audio = audioRef.current;
+    const seekTime = values?.[0] ?? 0;
+    if (audio) {
+      try {
+        audio.currentTime = seekTime;
+      } catch {
+        // ignore
+      }
+    }
+    setCurrentTime(seekTime);
+    setCurrent(seekTime);
+    isSeekingRef.current = false;
+    setIsSeeking(false);
+    if (audio && wasPlayingBeforeSeekRef.current) {
+      audio.play().catch(() => {});
+    }
   };
 
   const loopSong = () => {
@@ -141,7 +180,9 @@ export default function Player({ id }) {
     }
     const handleTimeUpdate = () => {
       try {
-        setCurrentTime(audioRef.current.currentTime);
+        if (!isSeekingRef.current) {
+          setCurrentTime(audioRef.current.currentTime);
+        }
         setDuration(audioRef.current.duration);
         setCurrent(audioRef.current.currentTime);
       } catch (e) {
@@ -230,10 +271,15 @@ export default function Player({ id }) {
               </div>
               <div className="grid gap-2 w-full mt-5 sm:mt-0">
                 <Slider
-                  onValueChange={handleSeek}
-                  value={[currentTime]}
+                  rangeClassName="bg-[#1DB954]"
+                  thumbClassName="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                  trackClassName="h-1"
+                  onPointerDown={handleSeekStart}
+                  onValueChange={handleSeekChange}
+                  onValueCommit={handleSeekCommit}
+                  value={[isSeeking ? seekValue : currentTime]}
                   max={duration}
-                  className="w-full"
+                  className="w-full group"
                 />
                 <div className="w-full flex items-center justify-between">
                   <span className="text-sm">{formatTime(currentTime)}</span>

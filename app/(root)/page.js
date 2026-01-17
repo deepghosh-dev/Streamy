@@ -2,11 +2,11 @@
 import AlbumCard from "@/components/cards/album";
 import ArtistCard from "@/components/cards/artist";
 import SongCard from "@/components/cards/song";
-import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MusicContext } from "@/hooks/use-context";
 import { getSongsByQuery, searchAlbumByQuery } from "@/lib/fetch";
+import { touchQueue } from "@/lib/queue";
 import { cn } from "@/lib/utils";
 import { Play } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -94,8 +94,8 @@ export default function Page() {
 
   const setLastPlayed = (id) => {
     try {
-      localStorage.clear();
       localStorage.setItem("last-played", id);
+      touchQueue(id);
     } catch {
       // ignore
     }
@@ -135,89 +135,39 @@ export default function Page() {
             ))}
       </div>
 
-      {/* Picked for you (hero) */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
-        <div className="rounded-2xl border border-white/5 bg-gradient-to-b from-white/10 to-white/5 p-4 overflow-hidden relative">
-          <div className="text-xs text-muted-foreground">Picked for you</div>
-          <div className="mt-2 flex items-center gap-3">
-            <div className="h-20 w-20 rounded-xl overflow-hidden bg-white/10 shrink-0">
-              {heroSong?.image?.[2]?.url ? (
-                <img
-                  src={heroSong.image[2].url}
-                  alt={heroSong?.name}
-                  className="h-20 w-20 object-cover"
+      <div className="mt-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-semibold tracking-tight">Made For You</div>
+            <div className="text-xs text-muted-foreground">
+              Daily mixes from your vibe.
+            </div>
+          </div>
+          <button className="text-xs text-muted-foreground hover:text-foreground transition">
+            Show all
+          </button>
+        </div>
+
+        <ScrollArea className="rounded-md mt-4">
+          <div className="flex gap-4">
+            {(latest.length ? latest : Array.from({ length: 8 })).slice(0, 10).map((song, i) =>
+              song?.id ? (
+                <SongCard
+                  key={song.id}
+                  id={song.id}
+                  image={song.image?.[2]?.url}
+                  title={song.name}
+                  artist={song.artists?.primary?.[0]?.name}
+                  className="w-[170px]"
+                  imageClassName="h-[170px]"
                 />
               ) : (
-                <div className="h-20 w-20 bg-white/10" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <div className="truncate text-lg font-semibold tracking-tight">
-                {heroSong?.name || "Loading…"}
-              </div>
-              <div className="truncate text-sm text-muted-foreground">
-                {heroSong?.artists?.primary?.[0]?.name || ""}
-              </div>
-            </div>
+                <SongCard key={i} className="w-[170px]" imageClassName="h-[170px]" />
+              )
+            )}
           </div>
-
-          <div className="mt-4 flex items-center gap-2">
-            <Button
-              className="rounded-full bg-emerald-400 text-black hover:bg-emerald-300"
-              onClick={() => {
-                if (!heroSong?.id) return;
-                ids?.setMusic?.(heroSong.id);
-                setLastPlayed(heroSong.id);
-              }}
-            >
-              <Play className="h-4 w-4 mr-2" />
-              Play
-            </Button>
-            <Button
-              variant="secondary"
-              className="rounded-full bg-white/10 hover:bg-white/15 border border-white/10"
-            >
-              Add to library
-            </Button>
-          </div>
-
-          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl" />
-        </div>
-
-        <div className="rounded-2xl border border-white/5 bg-black/10 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-semibold tracking-tight">Made For You</div>
-              <div className="text-xs text-muted-foreground">
-                Daily mixes from your vibe.
-              </div>
-            </div>
-            <button className="text-xs text-muted-foreground hover:text-foreground transition">
-              Show all
-            </button>
-          </div>
-
-          <ScrollArea className="rounded-md mt-4">
-            <div className="flex gap-4">
-              {(latest.length ? latest : Array.from({ length: 8 })).slice(0, 10).map((song, i) =>
-                song?.id ? (
-                  <SongCard
-                    key={song.id}
-                    id={song.id}
-                    image={song.image?.[2]?.url}
-                    title={song.name}
-                    artist={song.artists?.primary?.[0]?.name}
-                    className="w-[170px]"
-                    imageClassName="h-[170px]"
-                  />
-                ) : (
-                  <SongCard key={i} className="w-[170px]" imageClassName="h-[170px]" />
-                )
-              )}
-            </div>
-            <ScrollBar orientation="horizontal" className="hidden sm:flex" />
-          </ScrollArea>
-        </div>
+          <ScrollBar orientation="horizontal" className="hidden sm:flex" />
+        </ScrollArea>
       </div>
 
       {/* Recently played */}

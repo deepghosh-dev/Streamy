@@ -23,7 +23,7 @@ export default function SpotifyShell({ children }) {
       >
         <div className="w-full p-0">
           <div className="w-full">
-            <div className="rounded-none bg-black/25 border-y border-white/5 backdrop-blur-xl overflow-hidden">
+            <div className="rounded-none bg-black/25 border-y border-white/5 backdrop-blur-xl">
               {/* Top bar */}
               <div className="sticky top-0 z-40 bg-black/25 backdrop-blur-xl border-b border-white/5">
                 <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-6 sm:px-10 md:px-10 py-2">
