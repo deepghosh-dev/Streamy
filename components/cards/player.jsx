@@ -3,19 +3,19 @@ import { useMusicProvider } from "@/hooks/use-context";
 import { getSongsById } from "@/lib/fetch";
 import { getPrevNext, getPrevNextFromContext, touchQueue } from "@/lib/queue";
 import {
-  Download,
-  ExternalLink,
-  Play,
-  Repeat,
-  Repeat1,
-  SkipBack,
-  SkipForward,
-  Volume2,
-  X,
+    Download,
+    ExternalLink,
+    Play,
+    Repeat,
+    Repeat1,
+    SkipBack,
+    SkipForward,
+    Volume2,
+    X,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IoPause } from "react-icons/io5";
+import { IoPause, IoPlay } from "react-icons/io5";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { Slider } from "../ui/slider";
@@ -434,44 +434,45 @@ export default function Player() {
                   <div className="flex-1 min-w-0">
                     <div className="mx-auto w-full max-w-[560px]">
                       <div className="flex items-center justify-center gap-3">
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="h-10 w-10 rounded-full bg-white/5 hover:bg-white/10"
-                        onClick={playPrev}
-                        aria-label="Previous track"
-                        title="Previous"
-                      >
-                        <SkipBack className="h-5 w-5" />
-                      </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-10 w-10 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/15 transition active:scale-95"
+                          onClick={playPrev}
+                          aria-label="Previous track"
+                          title="Previous"
+                        >
+                          <SkipBack className="h-5 w-5" />
+                        </Button>
 
-                      <Button
-                        type="button"
-                        size="icon"
-                        className="h-11 w-11 rounded-full"
-                        onClick={togglePlayPause}
-                        aria-label={playing ? "Pause" : "Play"}
-                        title={playing ? "Pause" : "Play"}
-                      >
-                        {playing ? (
-                          <IoPause className="h-5 w-5" />
-                        ) : (
-                          <Play className="h-5 w-5" />
-                        )}
-                      </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-11 w-11 rounded-full bg-[#1DB954] text-black hover:bg-[#1ed760] shadow-lg shadow-black/30 transition active:scale-95"
+                          onClick={togglePlayPause}
+                          aria-label={playing ? "Pause" : "Play"}
+                          title={playing ? "Pause" : "Play"}
+                        >
+                          {playing ? (
+                            <IoPause className="h-5 w-5 text-black" />
+                          ) : (
+                            <IoPlay className="h-5 w-5 text-black translate-x-[1px]" />
+                          )}
+                        </Button>
 
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="h-10 w-10 rounded-full bg-white/5 hover:bg-white/10"
-                        onClick={playNext}
-                        aria-label="Next track"
-                        title="Next"
-                      >
-                        <SkipForward className="h-5 w-5" />
-                      </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-10 w-10 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/15 transition active:scale-95"
+                          onClick={playNext}
+                          aria-label="Next track"
+                          title="Next"
+                        >
+                          <SkipForward className="h-5 w-5" />
+                        </Button>
                       </div>
 
                       <div className="mt-2 flex items-center gap-3">
