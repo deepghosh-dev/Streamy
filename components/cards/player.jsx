@@ -30,6 +30,10 @@ export default function Player() {
   const [isLooping, setIsLooping] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [seekValue, setSeekValue] = useState(0);
+  const isSeekingRef = useRef(false);
+  const wasPlayingBeforeSeekRef = useRef(false);
   const { music, setMusic, current, setCurrent } = useMusicProvider();
 
   const formatTime = (time) => {
@@ -111,10 +115,46 @@ export default function Player() {
     }
   };
 
-  const handleSeek = (e) => {
-    const seekTime = e[0];
-    audioRef.current.currentTime = seekTime;
+  const handleSeekStart = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    isSeekingRef.current = true;
+    setIsSeeking(true);
+    const now = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+    setSeekValue(now);
+    wasPlayingBeforeSeekRef.current = !audio.paused;
+    if (wasPlayingBeforeSeekRef.current) {
+      try {
+        audio.pause();
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const handleSeekChange = (values) => {
+    const seekTime = values?.[0] ?? 0;
+    setSeekValue(seekTime);
     setCurrentTime(seekTime);
+  };
+
+  const handleSeekCommit = (values) => {
+    const audio = audioRef.current;
+    const seekTime = values?.[0] ?? 0;
+    if (audio) {
+      try {
+        audio.currentTime = seekTime;
+      } catch {
+        // ignore
+      }
+    }
+    setCurrentTime(seekTime);
+    setCurrent(seekTime);
+    isSeekingRef.current = false;
+    setIsSeeking(false);
+    if (audio && wasPlayingBeforeSeekRef.current) {
+      audio.play().catch(() => {});
+    }
   };
 
   const handleVolume = (e) => {
@@ -205,7 +245,9 @@ export default function Player() {
     const handleTimeUpdate = () => {
       try {
         if (!audio) return;
-        setCurrentTime(audio.currentTime);
+        if (!isSeekingRef.current) {
+          setCurrentTime(audio.currentTime);
+        }
         setDuration(audio.duration);
         setCurrent(audio.currentTime);
 
@@ -254,9 +296,12 @@ export default function Player() {
               ) : (
                 <Slider
                   thumbClassName="hidden"
+                  rangeClassName="bg-[#1DB954]"
                   trackClassName="h-1 transition-[height] group-hover:h-2 rounded-none"
-                  onValueChange={handleSeek}
-                  value={[currentTime]}
+                  onPointerDown={handleSeekStart}
+                  onValueChange={handleSeekChange}
+                  onValueCommit={handleSeekCommit}
+                  value={[isSeeking ? seekValue : currentTime]}
                   max={duration}
                   className="w-full group"
                 />
@@ -438,12 +483,15 @@ export default function Player() {
                           <Skeleton className="h-1 w-full" />
                         ) : (
                           <Slider
-                            thumbClassName="hidden"
+                            thumbClassName="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                            rangeClassName="bg-[#1DB954]"
                             trackClassName="h-1 bg-white/10"
-                            onValueChange={handleSeek}
-                            value={[currentTime]}
+                            onPointerDown={handleSeekStart}
+                            onValueChange={handleSeekChange}
+                            onValueCommit={handleSeekCommit}
+                            value={[isSeeking ? seekValue : currentTime]}
                             max={duration}
-                            className="w-full"
+                            className="w-full group"
                           />
                         )}
                       </div>
@@ -480,9 +528,10 @@ export default function Player() {
                         max={1}
                         min={0}
                         step={0.01}
-                        thumbClassName="h-3 w-3"
+                        thumbClassName="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                        rangeClassName="bg-[#1DB954]"
                         trackClassName="h-1 bg-white/10"
-                        className="w-full"
+                        className="w-full group"
                       />
                     </div>
 

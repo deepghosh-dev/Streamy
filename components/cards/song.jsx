@@ -33,9 +33,35 @@ export default function SongCard({
         <div className={cn("h-fit w-[200px]", className)}>
             <div className="overflow-hidden rounded-md">
                 {image ? (
-                    <div className="relative" onClick={() => { ids.setMusic(id); setLastPlayed(); }}>
-                        <img src={image} alt={title} className={cn("h-[182px] blurz w-full bg-secondary/60 rounded-md transition hover:scale-105 cursor-context-menu", imageClassName)} />
-                        <div className="cursor-pointer absolute z-10 bottom-2 left-2 bg-background/60 backdrop-blur-md rounded-full h-8 w-8 flex items-center justify-center"><IoPlay className="w-4 h-4 -mr-0.5 dark:fill-white"/></div>
+                    <div
+                        className="group relative"
+                        onClick={() => {
+                            ids.setMusic(id);
+                            setLastPlayed();
+                        }}
+                    >
+                        <img
+                            src={image}
+                            alt={title}
+                            className={cn(
+                                "h-[182px] blurz w-full bg-secondary/60 rounded-md transition group-hover:scale-105 cursor-context-menu",
+                                imageClassName
+                            )}
+                        />
+
+                        {/* Spotify-like hover play */}
+                        <div
+                            className={cn(
+                                "pointer-events-none absolute z-10 bottom-3 right-3",
+                                "opacity-0 translate-y-2 scale-95",
+                                "group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100",
+                                "transition-all duration-200 ease-out"
+                            )}
+                        >
+                            <div className="h-11 w-11 rounded-full bg-[#1DB954] shadow-[0_10px_24px_rgba(0,0,0,0.45)] flex items-center justify-center">
+                                <IoPlay className="w-[18px] h-[18px] -mr-0.5 fill-black" />
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <Skeleton className={cn("w-full h-[182px]", imageClassName)} />
