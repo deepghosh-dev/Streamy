@@ -4,6 +4,8 @@ import { Home, User2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import FriendSearch from "@/components/page/friend-search";
+import PlaylistDrawer from "@/components/page/playlist-drawer";
 import Search from "@/components/page/search";
 import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/branding";
@@ -26,45 +28,57 @@ export default function SpotifyShell({ children }) {
             <div className="rounded-none bg-black/25 border-y border-white/5 backdrop-blur-xl">
               {/* Top bar */}
               <div className="sticky top-0 z-40 bg-black/25 backdrop-blur-xl border-b border-white/5">
-                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-6 sm:px-10 md:px-10 py-2">
-                  <div className="flex items-center">
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-6 sm:px-10 md:px-10 py-3">
+                  {/* Left */}
+                  <div className="flex items-center gap-4 min-w-0">
                     <Link
                       href="/"
                       aria-label={APP_NAME}
                       title={APP_NAME}
                       className={cn(
                         "h-10 inline-flex items-center text-xl sm:text-2xl font-bold tracking-tight leading-none",
-                        "text-foreground/95 hover:text-foreground transition"
+                        "text-foreground/95 hover:text-foreground transition",
+                        "shrink-0"
                       )}
                     >
                       {APP_NAME}
                     </Link>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href="/"
-                      aria-label="Home"
-                      title="Home"
-                      className={cn(
-                        "h-10 w-10 rounded-full flex items-center justify-center transition",
-                        "bg-white/10 hover:bg-white/15 border border-white/10",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
-                      )}
-                    >
-                      <Home className="h-5 w-5" />
-                    </Link>
+                  {/* Center */}
+                  <div className="flex items-center justify-center justify-self-center">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href="/"
+                        aria-label="Home"
+                        title="Home"
+                        className={cn(
+                          "h-10 w-10 rounded-full flex items-center justify-center transition",
+                          "bg-white/10 hover:bg-white/15 border border-white/10",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20",
+                          "shrink-0"
+                        )}
+                      >
+                        <Home className="h-5 w-5" />
+                      </Link>
 
-                    <div className="w-[min(920px,82vw)]">
-                      <Search
-                        placeholder="What do you want to play?"
-                        inputClassName="bg-white/10 border-white/10 rounded-full pl-4 pr-12 h-10 focus-visible:ring-0 focus-visible:ring-offset-0"
-                        buttonClassName="rounded-full right-1 h-8 w-8 top-1/2 -translate-y-1/2 hover:bg-white/10"
-                      />
+                      <PlaylistDrawer />
+
+                      <div className="w-[min(680px,74vw)]">
+                        <Search
+                          placeholder="Search here"
+                          inputClassName="bg-white/10 border-white/10 rounded-full pl-5 pr-14 h-11 text-[15px] focus-visible:ring-0 focus-visible:ring-offset-0"
+                          buttonClassName="rounded-full right-1 h-9 w-9 top-1/2 -translate-y-1/2 hover:bg-white/10"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end">
+                  {/* Right */}
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="hidden md:block w-[min(320px,26vw)]">
+                      <FriendSearch />
+                    </div>
                     <Button
                       variant="secondary"
                       className="h-10 w-10 rounded-full p-0 bg-white/10 hover:bg-white/15 border border-white/10"

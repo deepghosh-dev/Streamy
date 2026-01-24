@@ -82,7 +82,7 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
   const skeletons = useMemo(() => Array.from({ length: pageSize }), [pageSize]);
 
   return (
-    <section className="mt-12">
+    <section className="mt-5">
       <div className="mb-5">
         <h2 className="text-base">For You</h2>
         <p className="text-xs text-muted-foreground">

@@ -24,6 +24,7 @@ const readHistory = () => {
 const writeHistory = (items) => {
     try {
         localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
+        window.dispatchEvent(new Event("search-history-updated"));
     } catch {
         // ignore
     }
