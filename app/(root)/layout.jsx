@@ -1,5 +1,3 @@
-import Player from "@/components/cards/player";
-import Footer from "@/components/page/footer";
 import SpotifyShell from "@/components/page/spotify-shell";
 
 export default function RootLayout({ children }) {
@@ -7,9 +5,7 @@ export default function RootLayout({ children }) {
         <main>
             <SpotifyShell>
                 {children}
-                <Footer />
             </SpotifyShell>
-            <Player />
         </main>
     )
 }

@@ -42,6 +42,9 @@ export default function PlaylistDrawer({
   triggerClassName,
   panelClassName,
   title = "Playlists",
+  triggerLabel,
+  triggerIconClassName,
+  triggerTextClassName,
 }) {
   const [open, setOpen] = React.useState(false);
   const [playlists, setPlaylists] = React.useState([]);
@@ -96,7 +99,17 @@ export default function PlaylistDrawer({
             triggerClassName
           )}
         >
-          <ListMusic className="h-5 w-5" />
+          <ListMusic className={cn("h-5 w-5", triggerIconClassName)} />
+          {triggerLabel ? (
+            <span
+              className={cn(
+                "mt-0.5 text-[10px] font-medium text-foreground/80",
+                triggerTextClassName
+              )}
+            >
+              {triggerLabel}
+            </span>
+          ) : null}
         </button>
       </SheetTrigger>
 

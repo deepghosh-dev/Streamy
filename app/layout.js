@@ -1,3 +1,4 @@
+import Player from "@/components/cards/player";
 import MusicProvider from "@/components/providers/music-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { APP_NAME, requireBranding } from "@/lib/branding";
@@ -56,7 +57,10 @@ export default function RootLayout({ children }) {
             zIndex={1600}
             showAtBottom={false}
           />
-          <MusicProvider>{children}</MusicProvider>
+          <MusicProvider>
+            {children}
+            <Player />
+          </MusicProvider>
           {/* <MobileMenu/> */}
           <Toaster position="top-center" visibleToasts={1} />
         </ThemeProvider>

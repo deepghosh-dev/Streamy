@@ -58,8 +58,8 @@ export default function PopularArtists() {
 
   return (
     <section className="mt-3">
-      <div className="mb-5 flex items-center gap-1">
-        <h2 className="text-base">Popular Artist</h2>
+      <div className="mb-3 sm:mb-5 flex items-center gap-1">
+        <h2 className="text-xs sm:text-base">Popular Artist</h2>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
 
@@ -84,19 +84,19 @@ export default function PopularArtists() {
 
         <div
           ref={scrollerRef}
-          className="flex gap-4 overflow-x-auto scroll-smooth pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-3 sm:gap-4 overflow-x-auto scroll-smooth pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {artists.length
             ? artists.map((a) => (
-                <div key={a.id} className="min-w-[100px]">
+                <div key={a.id} className="min-w-[76px] sm:min-w-[100px]">
                   <ArtistCard id={a.id} image={a.image} name={a.name} />
-                  <div className="mt-0.5 text-center text-xs text-muted-foreground">Artist</div>
+                  <div className="mt-0.5 text-center text-[10px] sm:text-xs text-muted-foreground">Artist</div>
                 </div>
               ))
             : Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="grid gap-2">
-                  <Skeleton className="h-[100px] w-[100px] rounded-full" />
-                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-[76px] w-[76px] sm:h-[100px] sm:w-[100px] rounded-full" />
+                  <Skeleton className="h-3 w-16 sm:w-20" />
                 </div>
               ))}
         </div>
