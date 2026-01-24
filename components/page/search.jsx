@@ -10,6 +10,9 @@ import { Input } from "../ui/input";
 const MAX_SUGGESTIONS = 8;
 const HISTORY_KEY = "search-history";
 const MAX_HISTORY = 10;
+const RECENTS_KEY = "search-recents";
+const MAX_RECENTS = 20;
+const BACK_TO_KEY = "streamy-back-to";
 
 const readHistory = () => {
     try {
@@ -25,6 +28,25 @@ const writeHistory = (items) => {
     try {
         localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
         window.dispatchEvent(new Event("search-history-updated"));
+    } catch {
+        // ignore
+    }
+};
+
+const readRecents = () => {
+    try {
+        const raw = localStorage.getItem(RECENTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
+
+const writeRecents = (items) => {
+    try {
+        localStorage.setItem(RECENTS_KEY, JSON.stringify(items));
+        window.dispatchEvent(new Event("search-recents-updated"));
     } catch {
         // ignore
     }
@@ -51,6 +73,43 @@ export default function Search({
     useEffect(() => {
         setHistory(readHistory());
     }, []);
+
+    const rememberBackTo = () => {
+        try {
+            const path = window.location?.pathname || "/";
+            try {
+                sessionStorage.setItem(BACK_TO_KEY, path);
+            } catch {
+                localStorage.setItem(BACK_TO_KEY, path);
+            }
+        } catch {
+            // ignore
+        }
+    };
+
+    const addRecentQuery = (term) => {
+        const value = String(term || "").trim();
+        if (!value) return;
+        const now = Date.now();
+        const prev = readRecents();
+        const filtered = prev.filter((it) => !(it?.type === "query" && String(it.term || "").toLowerCase() === value.toLowerCase()));
+        const next = [{ type: "query", term: value, ts: now }, ...filtered].slice(0, MAX_RECENTS);
+        writeRecents(next);
+    };
+
+    const addRecentSong = (song) => {
+        const id = String(song?.id || "").trim();
+        if (!id) return;
+        const now = Date.now();
+        const image = song?.image?.[1]?.url || song?.image?.[0]?.url || "";
+        const subtitle = song?.artists?.primary?.[0]?.name
+            ? `Song • ${song.artists.primary[0].name}`
+            : "Song";
+        const prev = readRecents();
+        const filtered = prev.filter((it) => !(it?.type === "song" && String(it.id || "") === id));
+        const next = [{ type: "song", id, name: String(song?.name || ""), subtitle, image, ts: now }, ...filtered].slice(0, MAX_RECENTS);
+        writeRecents(next);
+    };
 
     const addToHistory = (term) => {
         const value = String(term || "").trim();
@@ -124,13 +183,18 @@ export default function Search({
             return;
         }
         addToHistory(normalizedQuery);
+        addRecentQuery(normalizedQuery);
         router.push(`/search/${encodeURIComponent(normalizedQuery)}`);
         inpRef.current.blur();
         setQuery("");
         setOpen(false);
     };
 
-    const goToSong = (id) => {
+    const goToSong = (song) => {
+        const id = song?.id;
+        if (!id) return;
+        addRecentSong(song);
+        rememberBackTo();
         router.push(`/${id}`);
         inpRef.current?.blur();
         setQuery("");
@@ -201,6 +265,7 @@ export default function Search({
                                     className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                                     onClick={() => {
                                         addToHistory(normalizedQuery);
+                                        addRecentQuery(normalizedQuery);
                                         router.push(`/search/${encodeURIComponent(normalizedQuery)}`);
                                         inpRef.current?.blur();
                                         setQuery("");
@@ -217,6 +282,7 @@ export default function Search({
                                             className="flex-1 text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                                             onClick={() => {
                                                 addToHistory(term);
+                                                addRecentQuery(term);
                                                 router.push(`/search/${encodeURIComponent(term)}`);
                                                 inpRef.current?.blur();
                                                 setQuery("");
@@ -246,7 +312,7 @@ export default function Search({
                                     key={song.id}
                                     type="button"
                                     className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground"
-                                    onClick={() => goToSong(song.id)}
+                                    onClick={() => goToSong(song)}
                                 >
                                     <img
                                         src={song.image?.[1]?.url || song.image?.[0]?.url}

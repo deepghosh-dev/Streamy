@@ -17,21 +17,18 @@ import { toast } from "sonner";
 
 export default function Player({ id }) {
   const [data, setData] = useState([]);
-  const [playing, setPlaying] = useState(true);
-  const audioRef = useRef(null);
+  const { music, audioRef, isPlaying, setIsPlaying, setMusic, current, setCurrent, setDownloadProgress, downloadProgress } =
+    useMusicProvider();
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const isSeekingRef = useRef(false);
-  const wasPlayingBeforeSeekRef = useRef(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isLooping, setIsLooping] = useState(false);
   const [audioURL, setAudioURL] = useState("");
   const params = useSearchParams();
   const next = useNextMusicProvider();
-  const { current, setCurrent, setDownloadProgress, downloadProgress } =
-    useMusicProvider();
 
   const getSong = async () => {
     const get = await getSongsById(id);
@@ -53,14 +50,25 @@ export default function Player({ id }) {
   };
 
   const togglePlayPause = () => {
-    if (playing) {
-      audioRef.current.pause();
-      localStorage.setItem("p", "false");
+    const audio = audioRef?.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+      try {
+        localStorage.setItem("p", "false");
+      } catch {
+        // ignore
+      }
+      setIsPlaying(false);
     } else {
-      audioRef.current.play();
-      localStorage.setItem("p", "true");
+      audio.play().catch(() => {});
+      try {
+        localStorage.setItem("p", "true");
+      } catch {
+        // ignore
+      }
+      setIsPlaying(true);
     }
-    setPlaying(!playing);
   };
 
   const downloadSong = async () => {
@@ -115,20 +123,12 @@ export default function Player({ id }) {
   };
 
   const handleSeekStart = () => {
-    const audio = audioRef.current;
+    const audio = audioRef?.current;
     if (!audio) return;
     isSeekingRef.current = true;
     setIsSeeking(true);
     const now = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
     setSeekValue(now);
-    wasPlayingBeforeSeekRef.current = !audio.paused;
-    if (wasPlayingBeforeSeekRef.current) {
-      try {
-        audio.pause();
-      } catch {
-        // ignore
-      }
-    }
   };
 
   const handleSeekChange = (values) => {
@@ -138,7 +138,7 @@ export default function Player({ id }) {
   };
 
   const handleSeekCommit = (values) => {
-    const audio = audioRef.current;
+    const audio = audioRef?.current;
     const seekTime = values?.[0] ?? 0;
     if (audio) {
       try {
@@ -151,14 +151,13 @@ export default function Player({ id }) {
     setCurrent(seekTime);
     isSeekingRef.current = false;
     setIsSeeking(false);
-    if (audio && wasPlayingBeforeSeekRef.current) {
-      audio.play().catch(() => {});
-    }
   };
 
   const loopSong = () => {
-    audioRef.current.loop = !audioRef.current.loop;
-    setIsLooping(!isLooping);
+    const audio = audioRef?.current;
+    if (!audio) return;
+    audio.loop = !audio.loop;
+    setIsLooping(audio.loop);
   };
 
   const handleShare = () => {
@@ -173,29 +172,60 @@ export default function Player({ id }) {
 
   useEffect(() => {
     getSong();
-    localStorage.setItem("last-played", id);
-    localStorage.removeItem("p");
-    if (current) {
-      audioRef.current.currentTime = parseFloat(current + 1);
+    // Only switch the global track if it's different.
+    // This prevents restarting/auto-playing when opening the player page.
+    if (music !== id) {
+      setMusic(id);
     }
-    const handleTimeUpdate = () => {
-      try {
-        if (!isSeekingRef.current) {
-          setCurrentTime(audioRef.current.currentTime);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, music, setMusic]);
+
+  // Keep UI in sync with the global player's time.
+  useEffect(() => {
+    if (isSeekingRef.current) return;
+    const v = typeof current === "number" && Number.isFinite(current) ? current : 0;
+    setCurrentTime(v);
+  }, [current]);
+
+  // Read duration from the global audio element (retry until mounted).
+  useEffect(() => {
+    let cancelled = false;
+    let timer;
+
+    const attach = () => {
+      if (cancelled) return;
+      const audio = audioRef?.current;
+      if (!audio) {
+        timer = setTimeout(attach, 50);
+        return;
+      }
+
+      const update = () => {
+        try {
+          const d = Number.isFinite(audio.duration) ? audio.duration : 0;
+          setDuration(d);
+        } catch {
+          setDuration(0);
         }
-        setDuration(audioRef.current.duration);
-        setCurrent(audioRef.current.currentTime);
-      } catch (e) {
-        setPlaying(false);
-      }
+      };
+
+      update();
+      audio.addEventListener("loadedmetadata", update);
+      audio.addEventListener("durationchange", update);
+
+      return () => {
+        audio.removeEventListener("loadedmetadata", update);
+        audio.removeEventListener("durationchange", update);
+      };
     };
-    audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
+
+    const cleanup = attach();
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
-      }
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+      if (typeof cleanup === "function") cleanup();
     };
-  }, []);
+  }, [audioRef, id]);
   useEffect(() => {
     const handleRedirect = () => {
       if (currentTime === duration && !isLooping && duration !== 0) {
@@ -207,14 +237,6 @@ export default function Player({ id }) {
   }, [currentTime, duration, isLooping, next?.nextData?.id]);
   return (
     <div className="mb-3 mt-10">
-      <audio
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onLoadedData={() => setDuration(audioRef.current.duration)}
-        autoPlay={playing}
-        src={audioURL}
-        ref={audioRef}
-      ></audio>
       <div className="grid gap-6 w-full">
         <div className="sm:flex px-6 md:px-20 lg:px-32 grid gap-5 w-full">
           <div>
@@ -287,16 +309,16 @@ export default function Player({ id }) {
                 </div>
                 <div className="flex items-center mt-1 justify-between w-full sm:mt-2">
                   <Button
-                    variant={playing ? "default" : "secondary"}
+                    variant={isPlaying ? "default" : "secondary"}
                     className="gap-1 rounded-full"
                     onClick={togglePlayPause}
                   >
-                    {playing ? (
+                    {isPlaying ? (
                       <IoPause className="h-4 w-4" />
                     ) : (
                       <Play className="h-4 w-4" />
                     )}
-                    {playing ? "Pause" : "Play"}
+                    {isPlaying ? "Pause" : "Play"}
                   </Button>
                   <div className="flex items-center gap-2 sm:gap-3 sm:mt-0">
                     <Button size="icon" variant="ghost" onClick={loopSong}>

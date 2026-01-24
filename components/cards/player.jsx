@@ -5,25 +5,64 @@ import { getPrevNext, getPrevNextFromContext, touchQueue } from "@/lib/queue";
 import {
     Download,
     ExternalLink,
-    Play,
     Repeat,
     Repeat1,
-    SkipBack,
-    SkipForward,
     Volume2,
-    X,
+    X
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IoPause, IoPlay } from "react-icons/io5";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { Slider } from "../ui/slider";
 
+function DoubleSkipBackIcon({ className }) {
+  return (
+    <svg
+      width="28"
+      height="24"
+      viewBox="0 0 28 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className={className}
+    >
+      <path
+        d="M14.2 4.8C14.2 4 13.3 3.6 12.7 4.1L2.6 11.3C2.1 11.7 2.1 12.3 2.6 12.7L12.7 19.9C13.3 20.4 14.2 20 14.2 19.2V4.8Z M26 4.8C26 4 25.1 3.6 24.5 4.1L14.4 11.3C13.9 11.7 13.9 12.3 14.4 12.7L24.5 19.9C25.1 20.4 26 20 26 19.2V4.8Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function DoubleSkipForwardIcon({ className }) {
+  return (
+    <svg
+      width="28"
+      height="24"
+      viewBox="0 0 28 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className={className}
+    >
+      <g transform="translate(28 0) scale(-1 1)">
+        <path
+          d="M14.2 4.8C14.2 4 13.3 3.6 12.7 4.1L2.6 11.3C2.1 11.7 2.1 12.3 2.6 12.7L12.7 19.9C13.3 20.4 14.2 20 14.2 19.2V4.8Z M26 4.8C26 4 25.1 3.6 24.5 4.1L14.4 11.3C13.9 11.7 13.9 12.3 14.4 12.7L24.5 19.9C25.1 20.4 26 20 26 19.2V4.8Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+}
+
 export default function Player() {
   const [data, setData] = useState([]);
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [audioURL, setAudioURL] = useState("");
@@ -33,7 +72,18 @@ export default function Player() {
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const isSeekingRef = useRef(false);
-  const { music, setMusic, current, setCurrent } = useMusicProvider();
+  const { music, setMusic, current, setCurrent, audioRef, isPlaying, setIsPlaying } = useMusicProvider();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const hideUiOnSongPage =
+    !!pathname &&
+    /^\/[^/]+$/.test(pathname) &&
+    pathname !== "/" &&
+    pathname !== "/search" &&
+    pathname !== "/profile";
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
@@ -42,7 +92,8 @@ export default function Player() {
   };
 
   const togglePlayPause = () => {
-    if (playing) {
+    if (!audioRef?.current) return;
+    if (isPlaying) {
       audioRef.current.pause();
       try {
         localStorage.setItem("p", "false");
@@ -57,7 +108,7 @@ export default function Player() {
         // ignore
       }
     }
-    setPlaying(!playing);
+    setIsPlaying(!isPlaying);
   };
 
   const playTrackById = useCallback((id) => {
@@ -168,8 +219,9 @@ export default function Player() {
   };
 
   const loopSong = () => {
+    if (!audioRef?.current) return;
     audioRef.current.loop = !audioRef.current.loop;
-    setIsLooping(!isLooping);
+    setIsLooping(!audioRef.current.loop);
   };
 
   // Keep volume changes from re-initializing the current track
@@ -229,7 +281,7 @@ export default function Player() {
 
     // volume is handled in a separate effect to avoid re-initializing the track
 
-    setPlaying(
+    setIsPlaying(
       (localStorage.getItem("p") == "true" && true) ||
         (!localStorage.getItem("p") && true)
     );
@@ -243,7 +295,7 @@ export default function Player() {
         setDuration(audio.duration);
         setCurrent(audio.currentTime);
       } catch (e) {
-        setPlaying(false);
+        setIsPlaying(false);
       }
     };
 
@@ -267,111 +319,96 @@ export default function Player() {
   return (
     <main>
       <audio
-        autoPlay={playing}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
+        autoPlay={isPlaying}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
         onLoadedData={() => setDuration(audioRef.current.duration)}
         preload="metadata"
         src={audioURL}
         ref={audioRef}
       ></audio>
-      {music && (
-        <>
-          {/* Mobile: compact card */}
-          <div className="shadow-lg fixed grid bottom-0 max-w-[500px] md:border-l md:border-r md:rounded-md md:!rounded-b-none md:ml-auto right-0 left-0 border-border overflow-hidden border-t-none z-50 bg-background gap-3 sm:hidden">
-            <div className="w-full">
-              {!duration ? (
-                <Skeleton className="h-1 w-full" />
-              ) : (
-                <Slider
-                  thumbClassName="hidden"
-                  rangeClassName="bg-[#1DB954]"
-                  trackClassName="h-1 transition-[height] group-hover:h-2 rounded-none"
-                  onPointerDown={handleSeekStart}
-                  onValueChange={handleSeekChange}
-                  onValueCommit={handleSeekCommit}
-                  value={[isSeeking ? seekValue : currentTime]}
-                  max={duration}
-                  className="w-full group"
-                />
-              )}
-            </div>
-            <div className="grid gap-2 p-3 pt-0">
-              <div className="flex items-center justify-between gap-3">
-                <div className="relative flex items-center gap-2 w-full">
+
+        {mounted && music && !hideUiOnSongPage && (
+          <>
+          {/* Mobile (phone): pill mini player above bottom nav */}
+          <div className="sm:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-[calc(78px+86px+78px+56px+12px+16px)] max-w-[calc(100vw-24px)]">
+            <div className="relative overflow-hidden rounded-full bg-white/10 backdrop-blur-xl border border-white/15 shadow-[0_10px_50px_rgba(0,0,0,0.65)]">
+              <div aria-hidden className="pointer-events-none absolute inset-0 opacity-70 bg-[linear-gradient(-45deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04),rgba(255,255,255,0.02))]" />
+
+              <div className="relative flex items-center justify-between gap-3 px-2 py-2">
+                <button
+                  type="button"
+                  className="flex items-center gap-2 min-w-0 flex-1 text-left"
+                  onClick={() => {
+                    router.push(`/${music}`);
+                  }}
+                >
                   <img
-                    src={data.image ? data?.image[1]?.url : ""}
-                    alt={data?.name}
-                    className="rounded-md aspect-square h-12 w-12 bg-secondary hover:opacity-85 transition cursor-pointer"
+                    src={data?.image?.[1]?.url || data?.image?.[0]?.url || ""}
+                    alt={data?.name || "song"}
+                    className="h-10 w-10 rounded-full object-cover bg-white/10 flex-shrink-0"
+                    loading="lazy"
+                    draggable={false}
                   />
-                  <div>
+                  <div className="min-w-0">
                     {!data?.name ? (
                       <Skeleton className="h-4 w-32" />
                     ) : (
-                      <Link
-                        href={`/${music}`}
-                        className="text-base flex hover:opacity-85 transition font-medium gap-2 items-center"
-                      >
-                        <span className="truncate sm:max-w-[200px] max-w-[150px]">
-                          {data?.name}
-                        </span>
-                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                      </Link>
+                      <div className="truncate text-sm font-semibold">
+                        {data?.name}
+                      </div>
                     )}
-
-                    {!data?.artists?.primary[0]?.name ? (
-                      <Skeleton className="h-3 w-14 mt-1" />
+                    {!data?.artists?.primary?.[0]?.name ? (
+                      <Skeleton className="h-3 w-20 mt-1" />
                     ) : (
-                      <h2 className="text-xs -mt-0.5 text-muted-foreground truncate max-w-[180px]">
-                        {data?.artists?.primary[0]?.name}
-                      </h2>
+                      <div className="truncate text-[11px] text-muted-foreground">
+                        {data?.artists?.primary?.[0]?.name}
+                      </div>
                     )}
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
+                </button>
+
+                <div className="relative flex items-center gap-2 shrink-0">
+                  {/* soft blur highlight behind controls */}
+                  <div aria-hidden className="pointer-events-none absolute -inset-x-6 inset-y-0 rounded-full bg-white/10 blur-md" />
+
                   <Button
+                    type="button"
                     size="icon"
-                    className="p-0 h-9 w-9"
-                    variant={!isLooping ? "ghost" : "secondary"}
-                    onClick={loopSong}
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full bg-transparent border-0 text-white hover:bg-white/10 active:scale-95 focus-visible:ring-0"
+                    onClick={playPrev}
+                    aria-label="Previous"
+                    title="Previous"
                   >
-                    {!isLooping ? (
-                      <Repeat className="h-3.5 w-3.5" />
-                    ) : (
-                      <Repeat1 className="h-3.5 w-3.5" />
-                    )}
+                    <DoubleSkipBackIcon className="h-6 w-6" />
                   </Button>
+
                   <Button
+                    type="button"
                     size="icon"
-                    className="p-0 h-9 w-9"
+                    className="relative h-10 w-10 rounded-full bg-transparent border-0 text-white hover:bg-white/10 active:scale-95 focus-visible:ring-0"
                     onClick={togglePlayPause}
+                    aria-label={isPlaying ? "Pause" : "Play"}
+                    title={isPlaying ? "Pause" : "Play"}
                   >
-                    {playing ? (
-                      <IoPause className="h-4 w-4" />
+                    {isPlaying ? (
+                      <IoPause className="h-7 w-7 text-white" />
                     ) : (
-                      <Play className="h-4 w-4" />
+                      <IoPlay className="h-7 w-7 text-white translate-x-[1px]" />
                     )}
                   </Button>
+
                   <Button
+                    type="button"
                     size="icon"
-                    className="p-0 h-9 w-9"
-                    variant="secondary"
-                    onClick={() => {
-                      setMusic(null);
-                      setCurrent(0);
-                      try {
-                        localStorage.removeItem("last-played");
-                      } catch {
-                        // ignore
-                      }
-                      if (audioRef.current) {
-                        audioRef.current.currentTime = 0;
-                        audioRef.current.src = null;
-                      }
-                      setAudioURL(null);
-                    }}
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full bg-transparent border-0 text-white hover:bg-white/10 active:scale-95 focus-visible:ring-0"
+                    onClick={playNext}
+                    aria-label="Next"
+                    title="Next"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <DoubleSkipForwardIcon className="h-6 w-6" />
                   </Button>
                 </div>
               </div>
@@ -431,7 +468,7 @@ export default function Player() {
                           aria-label="Previous track"
                           title="Previous"
                         >
-                          <SkipBack className="h-5 w-5" />
+                          <DoubleSkipBackIcon className="h-5 w-5" />
                         </Button>
 
                         <Button
@@ -440,10 +477,10 @@ export default function Player() {
                           variant="ghost"
                           className="h-11 w-11 rounded-full bg-[#1DB954] text-black hover:bg-[#1ed760] shadow-lg shadow-black/30 transition active:scale-95"
                           onClick={togglePlayPause}
-                          aria-label={playing ? "Pause" : "Play"}
-                          title={playing ? "Pause" : "Play"}
+                          aria-label={isPlaying ? "Pause" : "Play"}
+                          title={isPlaying ? "Pause" : "Play"}
                         >
-                          {playing ? (
+                          {isPlaying ? (
                             <IoPause className="h-5 w-5 text-black" />
                           ) : (
                             <IoPlay className="h-5 w-5 text-black translate-x-[1px]" />
@@ -459,7 +496,7 @@ export default function Player() {
                           aria-label="Next track"
                           title="Next"
                         >
-                          <SkipForward className="h-5 w-5" />
+                          <DoubleSkipForwardIcon className="h-5 w-5" />
                         </Button>
                       </div>
 

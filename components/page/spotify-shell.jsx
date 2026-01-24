@@ -1,8 +1,8 @@
 "use client";
 
-import { Home, User2 } from "lucide-react";
+import { Home, Search as SearchIcon, User2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import FriendSearch from "@/components/page/friend-search";
 import PlaylistDrawer from "@/components/page/playlist-drawer";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export default function SpotifyShell({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen w-full bg-black/90">
@@ -53,7 +54,9 @@ export default function SpotifyShell({ children }) {
                       className="ml-auto w-[min(160px,48vw)]"
                       inputClassName="h-8 text-[11.5px] bg-white/10 border-white/10 rounded-full pl-3 pr-11"
                       buttonClassName="h-7 w-7 right-1 hover:bg-white/10"
-                      placeholder="Search friends"
+                      placeholder="Search here"
+                      ariaLabel="Search"
+                      navigateTo="/search"
                     />
                   </div>
                 </div>
@@ -128,6 +131,80 @@ export default function SpotifyShell({ children }) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile bottom menu (phone only) */}
+      <div className="sm:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3">
+        <nav
+          aria-label="Bottom navigation"
+          className={cn(
+            "h-[62px] px-2 py-2 rounded-full",
+            "bg-white/10 backdrop-blur-xl",
+            "border border-white/15",
+            "shadow-[0_10px_50px_rgba(0,0,0,0.65)]",
+            "flex items-center"
+          )}
+        >
+            <Link
+              href="/"
+              aria-label="Home"
+              title="Home"
+              className={cn(
+                "h-full w-[78px] rounded-full",
+                "flex flex-col items-center justify-center gap-0.5",
+                "text-[10px] font-medium",
+                pathname === "/" ? "bg-white/15 text-white" : "text-white/70"
+              )}
+            >
+              <Home className="h-5 w-5" />
+              <span>Home</span>
+            </Link>
+
+            <PlaylistDrawer
+              triggerLabel="Playlist"
+              triggerClassName={cn(
+                "h-full w-[86px] rounded-full",
+                "flex flex-col items-center justify-center gap-0.5",
+                "text-[10px] font-medium",
+                "text-white/70 bg-transparent border-transparent hover:border-white/0"
+              )}
+              triggerIconClassName="h-5 w-5"
+              triggerTextClassName="text-white/70"
+            />
+
+            <Link
+              href="/profile"
+              aria-label="Profile"
+              title="Profile"
+              className={cn(
+                "h-full w-[78px] rounded-full",
+                "flex flex-col items-center justify-center gap-0.5",
+                "text-[10px] font-medium",
+                pathname?.startsWith("/profile")
+                  ? "bg-white/15 text-white"
+                  : "text-white/70"
+              )}
+            >
+              <User2 className="h-5 w-5" />
+              <span>Profile</span>
+            </Link>
+        </nav>
+
+        <Link
+          href="/search"
+          aria-label="Search"
+          title="Search"
+          className={cn(
+            "h-[56px] w-[56px] rounded-full",
+            "bg-white/10 backdrop-blur-xl",
+            "border border-white/15",
+            "shadow-[0_10px_50px_rgba(0,0,0,0.65)]",
+            "inline-flex items-center justify-center",
+            "hover:bg-white/15 transition"
+          )}
+        >
+          <SearchIcon className="h-6 w-6 text-white/90" />
+        </Link>
       </div>
     </div>
   );
