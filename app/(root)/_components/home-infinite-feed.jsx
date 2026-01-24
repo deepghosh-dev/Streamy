@@ -22,7 +22,7 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
   const inFlightRef = useRef(false);
 
   const gridClassName =
-    "grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
+    "grid grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-4 sm:gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
 
   const fetchPage = useCallback(
     async (pageToFetch) => {
@@ -82,12 +82,9 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
   const skeletons = useMemo(() => Array.from({ length: pageSize }), [pageSize]);
 
   return (
-    <section className="mt-5">
+    <section className="mt-2 sm:mt-5">
       <div className="mb-5">
-        <h2 className="text-base">For You</h2>
-        <p className="text-xs text-muted-foreground">
-          Keep scrolling—more songs will load automatically.
-        </p>
+        <h2 className="text-sm sm:text-base">For You</h2>
       </div>
 
       {error ? (
@@ -113,6 +110,8 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
             image={getImageUrl(song)}
             className="w-full"
             imageClassName="aspect-square h-auto w-full object-cover"
+            titleClassName="text-[13px] sm:text-base"
+            artistClassName="text-[11px] sm:text-sm"
             contextIds={items.map((s) => s.id)}
             contextKey={`feed:${query}`}
           />
@@ -124,6 +123,8 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
               key={`sk-${i}`}
               className="w-full"
               imageClassName="aspect-square h-auto w-full"
+              titleClassName="text-[13px] sm:text-base"
+              artistClassName="text-[11px] sm:text-sm"
             />
           ))}
       </div>

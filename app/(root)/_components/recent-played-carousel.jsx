@@ -19,12 +19,21 @@ export default function RecentPlayedCarousel() {
   const [songs, setSongs] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const abortRef = useRef(null);
+  const [isPhone, setIsPhone] = useState(false);
 
   const visible = useMemo(() => ids.slice(0, MAX_ITEMS), [ids]);
 
   const offsets = useMemo(() => {
     const len = songs.length;
-    // More visible cards (like the reference): try to show 1 extra on both sides.
+
+    // Phone layout: show exactly 3 cards (left / center / right).
+    if (isPhone) {
+      if (len >= 3) return [-1, 0, 1];
+      if (len === 2) return [0, 1];
+      return [0];
+    }
+
+    // Larger screens: show more cards.
     if (len >= 7) return [-3, -2, -1, 0, 1, 2, 3];
     if (len === 6) return [-3, -2, -1, 0, 1, 2];
     if (len === 5) return [-2, -1, 0, 1, 2];
@@ -32,7 +41,7 @@ export default function RecentPlayedCarousel() {
     if (len === 3) return [-1, 0, 1];
     if (len === 2) return [0, 1];
     return [0];
-  }, [songs.length]);
+  }, [songs.length, isPhone]);
 
   const refreshIds = () => {
     try {
@@ -54,6 +63,21 @@ export default function RecentPlayedCarousel() {
       window.removeEventListener("storage", onUpdate);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 520px)");
+    const apply = () => setIsPhone(Boolean(mq.matches));
+    apply();
+
+    if (mq.addEventListener) mq.addEventListener("change", apply);
+    else mq.addListener(apply);
+
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", apply);
+      else mq.removeListener(apply);
+    };
   }, []);
 
   useEffect(() => {
@@ -112,13 +136,26 @@ export default function RecentPlayedCarousel() {
 
   const cardStyleFor = (offset) => {
     const abs = Math.abs(offset);
-    // Keep all cards fully visible as requested.
-    const scale = abs === 0 ? 1 : abs === 1 ? 0.92 : abs === 2 ? 0.86 : 0.8;
-    const opacity = 1;
+
+    const scale = isPhone
+      ? abs === 0
+        ? 1
+        : 0.9
+      : abs === 0
+        ? 1
+        : abs === 1
+          ? 0.92
+          : abs === 2
+            ? 0.86
+            : 0.8;
+
+    const opacity = isPhone ? (abs === 0 ? 1 : 0.92) : 1;
     // Keep below navbar (navbar uses z-40).
     const z = abs === 0 ? 30 : abs === 1 ? 20 : abs === 2 ? 10 : 0;
-    // Bring cards more "inside" so second card isn't too far outside.
-    const x = offset * 200;
+
+    // Phone: tighter spacing so side cards stay visible.
+    const xStep = isPhone ? 105 : 200;
+    const x = offset * xStep;
     const blur = 0;
     return {
       transform: `translate(-50%, -50%) translateX(${x}px) scale(${scale})`,
@@ -129,27 +166,27 @@ export default function RecentPlayedCarousel() {
   };
 
   return (
-    <section className="mt-2 mb-3 sm:mb-4">
+    <section className="mt-0.5 sm:mt-2 mb-3 sm:mb-4">
       <div className="mb-0 flex items-center gap-1">
-        <h2 className="text-base">Recent Played</h2>
+        <h2 className="text-sm sm:text-base">Recent Played</h2>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
 
       {songs.length ? (
         <div className="relative">
-          <div className="relative isolate h-[300px] sm:h-[380px] lg:h-[400px]">
+          <div className="relative isolate mx-auto w-full max-w-[380px] px-2 h-[190px] sm:max-w-none sm:px-0 sm:h-[380px] lg:h-[400px]">
             <button
               type="button"
               aria-label="Previous"
               onClick={() => step(-1)}
               className={cn(
                 "absolute left-2 sm:left-6 top-[52%] -translate-y-1/2 z-30",
-                "h-10 w-10 rounded-full bg-white/80 text-black",
+                "h-7 w-7 sm:h-10 sm:w-10 rounded-full bg-white/80 text-black",
                 "flex items-center justify-center",
                 "hover:bg-white transition"
               )}
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
             </button>
             <button
               type="button"
@@ -157,12 +194,12 @@ export default function RecentPlayedCarousel() {
               onClick={() => step(1)}
               className={cn(
                 "absolute right-2 sm:right-6 top-[52%] -translate-y-1/2 z-30",
-                "h-10 w-10 rounded-full bg-white/80 text-black",
+                "h-7 w-7 sm:h-10 sm:w-10 rounded-full bg-white/80 text-black",
                 "flex items-center justify-center",
                 "hover:bg-white transition"
               )}
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
             </button>
 
             {offsets.map((offset) => {
@@ -198,7 +235,7 @@ export default function RecentPlayedCarousel() {
                     }}
                     className={cn(
                       "group relative",
-                      "w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]",
+                      "w-[170px] h-[170px] sm:w-[380px] sm:h-[380px]",
                       "rounded-[28px] overflow-hidden",
                       "shadow-[0_25px_70px_rgba(0,0,0,0.45)]",
                       "focus:outline-none"
@@ -212,6 +249,9 @@ export default function RecentPlayedCarousel() {
                       draggable={false}
                     />
 
+                    {/* Side cards darker (layered look on phone) */}
+                    {!isActive ? <div className="absolute inset-0 bg-black/35" /> : null}
+
                     {/* Spotify-style play button on hover (center card only) */}
                     {isActive ? (
                       <div
@@ -224,7 +264,7 @@ export default function RecentPlayedCarousel() {
                       >
                         <div
                           className={cn(
-                            "h-14 w-14 sm:h-16 sm:w-16",
+                            "h-10 w-10 sm:h-16 sm:w-16",
                             "rounded-full",
                             "bg-[#1db954] text-black",
                             "flex items-center justify-center",
@@ -232,7 +272,7 @@ export default function RecentPlayedCarousel() {
                           )}
                         >
                           <Play
-                            className="h-7 w-7 sm:h-8 sm:w-8 translate-x-[1px]"
+                            className="h-5 w-5 sm:h-8 sm:w-8 translate-x-[1px]"
                             fill="currentColor"
                             strokeWidth={0}
                           />

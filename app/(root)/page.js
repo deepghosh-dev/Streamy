@@ -11,7 +11,7 @@ export default function Page() {
 
       <PopularArtists />
 
-      <div className="mt-6">
+      <div className="mt-3 sm:mt-6">
         <HomeInfiniteFeed query="latest" pageSize={24} />
       </div>
     </main>

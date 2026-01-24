@@ -14,6 +14,9 @@ export default function SongCard({
     desc,
     className,
     imageClassName,
+    titleClassName,
+    artistClassName,
+    descClassName,
     contextIds,
     contextKey,
 }) {
@@ -69,17 +72,17 @@ export default function SongCard({
             </div>
             <div className="cursor-pointer">
                 {title ? (
-                    <div onClick={() => { ids.setMusic(id); setLastPlayed(); }} className="mt-3 flex items-center justify-between">
-                        <h1 className="text-base">{title.slice(0, 20)}{title.length > 20 && '...'}</h1>
+                    <div onClick={() => { ids.setMusic(id); setLastPlayed(); }} className="mt-1.5 sm:mt-3 flex items-center justify-between">
+                        <h1 className={cn("text-base", titleClassName)}>{title.slice(0, 20)}{title.length > 20 && '...'}</h1>
                     </div>
                 ) : (
                     <Skeleton className="w-[70%] h-4 mt-2" />
                 )}
                 {desc && (
-                    <p className="text-xs text-muted-foreground">{desc.slice(0, 30)}</p>
+                    <p className={cn("text-xs text-muted-foreground leading-tight", descClassName)}>{desc.slice(0, 30)}</p>
                 )}
                 {artist ? (
-                    <p className="text-sm font-light text-muted-foreground">{artist.slice(0, 20)}{artist.length > 20 && '...'}</p>
+                    <p className={cn("text-sm font-light text-muted-foreground leading-tight", artistClassName)}>{artist.slice(0, 20)}{artist.length > 20 && '...'}</p>
                 ) : (
                     <Skeleton className="w-10 h-2 mt-2" />
                 )}

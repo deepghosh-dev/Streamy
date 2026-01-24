@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export default function FriendSearch({ className }) {
+export default function FriendSearch({
+  className,
+  inputClassName,
+  buttonClassName,
+  placeholder = "Search friends",
+}) {
   const [query, setQuery] = React.useState("");
 
   return (
@@ -24,7 +29,8 @@ export default function FriendSearch({ className }) {
         size="icon"
         className={cn(
           "absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-9 w-9",
-          "hover:bg-white/10"
+          "hover:bg-white/10",
+          buttonClassName
         )}
         aria-label="Search friends"
       >
@@ -34,13 +40,14 @@ export default function FriendSearch({ className }) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         type="search"
-        placeholder="Search friends"
+        placeholder={placeholder}
         autoComplete="off"
         className={cn(
           "h-11 rounded-full text-[15px]",
           "bg-white/10 border-white/10",
           "pl-5 pr-14",
-          "focus-visible:ring-0 focus-visible:ring-offset-0"
+          "focus-visible:ring-0 focus-visible:ring-offset-0",
+          inputClassName
         )}
       />
     </form>
