@@ -1,11 +1,9 @@
 "use client";
 
 import ArtistCard from "@/components/cards/artist";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getSongsByQuery } from "@/lib/fetch";
-import { ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function getFallbackAvatar(name) {
   const first = String(name || "U").trim().slice(0, 1).toUpperCase() || "U";
@@ -14,14 +12,21 @@ function getFallbackAvatar(name) {
 
 export default function PopularArtists() {
   const [songs, setSongs] = useState([]);
+  const scrollerRef = useRef(null);
+
+  const scrollByAmount = (amount) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: amount, behavior: "smooth" });
+  };
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const res = await getSongsByQuery("latest");
+        const res = await fetch("/api/feed/songs?query=latest&limit=50", { cache: "no-store" });
         const data = await res?.json();
-        const results = data?.data?.results;
+        const results = data?.results ?? data?.data?.results;
         if (!mounted) return;
         setSongs(Array.isArray(results) ? results : []);
       } catch {
@@ -46,7 +51,7 @@ export default function PopularArtists() {
         name: a.name,
         image: a?.image?.[2]?.url || a?.image?.[1]?.url || a?.image?.[0]?.url || getFallbackAvatar(a.name),
       });
-      if (map.size >= 14) break;
+      if (map.size >= 24) break;
     }
     return Array.from(map.values());
   }, [songs]);
@@ -58,8 +63,29 @@ export default function PopularArtists() {
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
 
-      <ScrollArea className="rounded-md">
-        <div className="flex gap-4">
+      <div className="group relative rounded-md">
+        <button
+          type="button"
+          aria-label="Scroll left"
+          onClick={() => scrollByAmount(-260)}
+          className="absolute left-1 top-1/2 z-10 -translate-y-1/2 rounded-full border bg-background/70 p-1.5 text-foreground shadow-sm backdrop-blur transition-opacity hover:bg-background/90 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+
+        <button
+          type="button"
+          aria-label="Scroll right"
+          onClick={() => scrollByAmount(260)}
+          className="absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-full border bg-background/70 p-1.5 text-foreground shadow-sm backdrop-blur transition-opacity hover:bg-background/90 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+
+        <div
+          ref={scrollerRef}
+          className="flex gap-4 overflow-x-auto scroll-smooth pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {artists.length
             ? artists.map((a) => (
                 <div key={a.id} className="min-w-[100px]">
@@ -74,8 +100,7 @@ export default function PopularArtists() {
                 </div>
               ))}
         </div>
-        <ScrollBar orientation="horizontal" className="hidden sm:flex" />
-      </ScrollArea>
+      </div>
     </section>
   );
 }
