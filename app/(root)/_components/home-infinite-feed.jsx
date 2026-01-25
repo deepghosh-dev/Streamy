@@ -80,6 +80,7 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
   }, [page, hasMore, loading, fetchPage]);
 
   const skeletons = useMemo(() => Array.from({ length: pageSize }), [pageSize]);
+  const contextIds = useMemo(() => items.map((s) => s.id), [items]);
 
   return (
     <section className="mt-2 sm:mt-5">
@@ -112,7 +113,7 @@ export default function HomeInfiniteFeed({ query = "latest", pageSize = 24 }) {
             imageClassName="aspect-square h-auto w-full object-cover"
             titleClassName="text-[13px] sm:text-base"
             artistClassName="text-[11px] sm:text-sm"
-            contextIds={items.map((s) => s.id)}
+            contextIds={contextIds}
             contextKey={`feed:${query}`}
           />
         ))}
