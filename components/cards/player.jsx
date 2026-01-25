@@ -72,6 +72,7 @@ export default function Player() {
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
   const isSeekingRef = useRef(false);
+  const didAutoAdvanceRef = useRef(false);
   const { music, setMusic, current, setCurrent, audioRef, isPlaying, setIsPlaying } = useMusicProvider();
 
   useEffect(() => {
@@ -243,6 +244,7 @@ export default function Player() {
 
     // New track: always reset UI + global progress to 0
     isSeekingRef.current = false;
+    didAutoAdvanceRef.current = false;
     setIsSeeking(false);
     setSeekValue(0);
     setCurrentTime(0);
@@ -292,8 +294,22 @@ export default function Player() {
         if (!isSeekingRef.current) {
           setCurrentTime(audio.currentTime);
         }
-        setDuration(audio.duration);
+        const d = Number.isFinite(audio.duration) ? audio.duration : 0;
+        setDuration(d);
         setCurrent(audio.currentTime);
+
+        // Some devices/browsers don't reliably emit `ended` for streamed URLs.
+        // Detect end-of-track via currentTime/duration and auto-advance once.
+        if (!audio.loop && d > 0 && !didAutoAdvanceRef.current) {
+          const t = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+          if (t >= d - 0.25) {
+            didAutoAdvanceRef.current = true;
+            const fromContext = getPrevNextFromContext(music).nextId;
+            const fromQueue = getPrevNext(music).nextId;
+            const id = fromContext || fromQueue;
+            if (id) playTrackById(id);
+          }
+        }
       } catch (e) {
         setIsPlaying(false);
       }
@@ -304,6 +320,8 @@ export default function Player() {
     const handleEnded = () => {
       // If there is a next track in queue and not looping, go next.
       if (audio?.loop) return;
+      if (didAutoAdvanceRef.current) return;
+      didAutoAdvanceRef.current = true;
       const fromContext = getPrevNextFromContext(music).nextId;
       const fromQueue = getPrevNext(music).nextId;
       const id = fromContext || fromQueue;

@@ -20,9 +20,9 @@ export default function SpotifyShell({ children }) {
       <div className="min-h-screen w-full bg-black/90">
         <div className="w-full p-0">
           <div className="w-full">
-            <div className="rounded-none bg-black/90 backdrop-blur-xl">
+            <div className="rounded-none bg-black/90 backdrop-blur-none sm:backdrop-blur-xl">
               {/* Top bar */}
-              <div className="sticky top-0 z-40 bg-black/90 backdrop-blur-xl">
+              <div className="sticky top-0 z-40 bg-black/90 backdrop-blur-none sm:backdrop-blur-xl">
                 {/* Mobile navbar (matches screenshot) */}
                 <div className="sm:hidden px-3 py-2">
                   <div className="flex items-center gap-2.5">

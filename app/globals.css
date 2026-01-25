@@ -73,7 +73,20 @@
     @apply bg-transparent;
   }
   .blurz{
-    animation: blur .7s forwards;
+    animation: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .blurz{
+      animation: blur .7s forwards;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blurz{
+      animation: none;
+      filter: none;
+    }
   }
 
   @keyframes blur {
