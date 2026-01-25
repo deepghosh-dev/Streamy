@@ -47,7 +47,8 @@ export default function SongCard({
                             src={image}
                             alt={title}
                             className={cn(
-                                "h-[182px] blurz w-full bg-secondary/60 rounded-md transition group-hover:scale-105 cursor-context-menu",
+                                // Avoid hover/touch jank on phones while scrolling
+                                "h-[182px] blurz w-full bg-secondary/60 rounded-md transform-gpu transition-transform sm:group-hover:scale-105 cursor-pointer select-none",
                                 imageClassName
                             )}
                         />
@@ -57,7 +58,8 @@ export default function SongCard({
                             className={cn(
                                 "pointer-events-none absolute z-10 bottom-3 right-3",
                                 "opacity-0 translate-y-2 scale-95",
-                                "group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100",
+                                // Only show hover affordance on devices that actually support hover
+                                "sm:group-hover:opacity-100 sm:group-hover:translate-y-0 sm:group-hover:scale-100",
                                 "transition-all duration-200 ease-out"
                             )}
                         >
