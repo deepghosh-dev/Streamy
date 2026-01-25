@@ -154,7 +154,7 @@ export default function RecentPlayedCarousel() {
     const z = abs === 0 ? 30 : abs === 1 ? 20 : abs === 2 ? 10 : 0;
 
     // Phone: tighter spacing so side cards stay visible.
-    const xStep = isPhone ? 118 : 230;
+    const xStep = isPhone ? 105 : 200;
     const x = offset * xStep;
     const blur = 0;
     return {
@@ -174,7 +174,7 @@ export default function RecentPlayedCarousel() {
 
       {songs.length ? (
         <div className="relative">
-          <div className="relative isolate mx-auto w-full max-w-[420px] px-2 h-[220px] sm:max-w-none sm:px-0 sm:h-[420px] lg:h-[450px]">
+          <div className="relative isolate mx-auto w-full max-w-[380px] px-2 h-[190px] sm:max-w-none sm:px-0 sm:h-[380px] lg:h-[400px]">
             <button
               type="button"
               aria-label="Previous"
@@ -235,7 +235,7 @@ export default function RecentPlayedCarousel() {
                     }}
                     className={cn(
                       "group relative",
-                      "w-[190px] h-[190px] sm:w-[420px] sm:h-[420px]",
+                      "w-[170px] h-[170px] sm:w-[380px] sm:h-[380px]",
                       "rounded-[28px] overflow-hidden",
                       "shadow-[0_25px_70px_rgba(0,0,0,0.45)]",
                       "focus:outline-none"

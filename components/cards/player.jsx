@@ -78,16 +78,6 @@ export default function Player() {
     setMounted(true);
   }, []);
 
-  // Safety net: when switching tracks while in "playing" state, explicitly start playback.
-  // Relying on the <audio autoPlay> attribute alone can be flaky after an 'ended' -> src swap.
-  useEffect(() => {
-    const audio = audioRef?.current;
-    if (!audio) return;
-    if (!audioURL) return;
-    if (!isPlaying) return;
-    audio.play().catch(() => {});
-  }, [audioURL, isPlaying, audioRef]);
-
   const hideUiOnSongPage =
     !!pathname &&
     /^\/[^/]+$/.test(pathname) &&
@@ -121,24 +111,16 @@ export default function Player() {
     setIsPlaying(!isPlaying);
   };
 
-  const playTrackById = useCallback(
-    (id) => {
-      if (!id) return;
-      try {
-        // Selecting/advancing tracks should always start playback.
-        // This also fixes the case where the previous track ended (pause event flips
-        // state) before we swap the src for the next track.
-        localStorage.setItem("p", "true");
-        localStorage.setItem("last-played", id);
-        touchQueue(id);
-      } catch {
-        // ignore
-      }
-      setIsPlaying(true);
-      setMusic(id);
-    },
-    [setMusic, setIsPlaying]
-  );
+  const playTrackById = useCallback((id) => {
+    if (!id) return;
+    try {
+      localStorage.setItem("last-played", id);
+      touchQueue(id);
+    } catch {
+      // ignore
+    }
+    setMusic(id);
+  }, [setMusic]);
 
   const playPrev = () => {
     const { prevId } = getPrevNextFromContext(music);
